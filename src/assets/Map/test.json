@@ -1,0 +1,207 @@
+[
+  { "id": "5-2", "state": "unlocked", "connects_to": { "5-3": "south" } },
+  {
+    "id": "5-3",
+    "state": "unlocked",
+    "connects_to": { "5-2": "north", "5-4": "south" }
+  },
+  {
+    "id": "5-4",
+    "state": "unlocked",
+    "connects_to": { "5-3": "north", "5-5": "south" }
+  },
+  {
+    "id": "5-5",
+    "state": "unlocked",
+    "connects_to": { "5-4": "north", "5-6": "south" }
+  },
+  {
+    "id": "5-6",
+    "state": "unlocked",
+    "connects_to": { "5-5": "north", "5-7": "south" }
+  },
+  {
+    "id": "5-7",
+    "state": "unlocked",
+    "connects_to": { "5-6": "north", "5-8": "south" }
+  },
+  {
+    "id": "5-8",
+    "state": "unlocked",
+    "connects_to": { "5-7": "north", "5-9": "south" }
+  },
+  {
+    "id": "5-9",
+    "state": "unlocked",
+    "connects_to": { "5-8": "north", "5-10": "south" }
+  },
+  {
+    "id": "5-10",
+    "state": "unlocked",
+    "connects_to": { "5-9": "north", "5-11": "south" }
+  },
+  {
+    "id": "5-11",
+    "state": "unlocked",
+    "connects_to": { "5-10": "north", "6-11": "east" }
+  },
+  {
+    "id": "6-11",
+    "state": "unlocked",
+    "connects_to": { "5-11": "west", "7-11": "east" }
+  },
+  {
+    "id": "7-11",
+    "state": "unlocked",
+    "connects_to": { "6-11": "west", "8-11": "east" }
+  },
+  {
+    "id": "8-11",
+    "state": "unlocked",
+    "connects_to": { "7-11": "west", "9-11": "east" }
+  },
+  {
+    "id": "9-11",
+    "state": "unlocked",
+    "connects_to": { "8-11": "west", "10-11": "east" }
+  },
+  {
+    "id": "10-11",
+    "state": "unlocked",
+    "connects_to": { "9-11": "west", "11-11": "east" }
+  },
+  {
+    "id": "11-11",
+    "state": "unlocked",
+    "connects_to": {
+      "10-11": "west",
+      "12-11": "east",
+      "11-10": "north",
+      "11-12": "south"
+    }
+  },
+  {
+    "id": "12-11",
+    "state": "unlocked",
+    "connects_to": { "11-11": "west", "13-11": "east" }
+  },
+  {
+    "id": "13-11",
+    "state": "unlocked",
+    "connects_to": { "12-11": "west", "14-11": "east" }
+  },
+  {
+    "id": "14-11",
+    "state": "unlocked",
+    "connects_to": { "13-11": "west", "15-11": "east" }
+  },
+  {
+    "id": "15-11",
+    "state": "unlocked",
+    "connects_to": { "14-11": "west", "16-11": "east" }
+  },
+  {
+    "id": "16-11",
+    "state": "unlocked",
+    "connects_to": { "15-11": "west", "17-11": "east" }
+  },
+  {
+    "id": "17-11",
+    "state": "unlocked",
+    "connects_to": { "16-11": "west", "18-11": "east" }
+  },
+  {
+    "id": "18-11",
+    "state": "unlocked",
+    "connects_to": { "17-11": "west", "19-11": "east" }
+  },
+  {
+    "id": "19-11",
+    "state": "unlocked",
+    "connects_to": { "18-11": "west", "19-10": "north" }
+  },
+  {
+    "id": "19-10",
+    "state": "unlocked",
+    "connects_to": { "19-11": "south", "19-9": "north" }
+  },
+  {
+    "id": "19-9",
+    "state": "unlocked",
+    "connects_to": { "19-10": "south", "19-8": "north" }
+  },
+  {
+    "id": "19-8",
+    "state": "unlocked",
+    "connects_to": { "19-9": "south", "19-7": "north" }
+  },
+  {
+    "id": "19-7",
+    "state": "unlocked",
+    "connects_to": { "19-8": "south", "19-6": "north" }
+  },
+  {
+    "id": "19-6",
+    "state": "unlocked",
+    "connects_to": { "19-7": "south", "19-5": "north" }
+  },
+  {
+    "id": "19-5",
+    "state": "unlocked",
+    "connects_to": { "19-6": "south", "18-5": "west" }
+  },
+  { "id": "18-4", "state": "unlocked", "connects_to": { "18-5": "south" } },
+  {
+    "id": "18-5",
+    "state": "unlocked",
+    "connects_to": { "18-4": "north", "19-5": "east", "17-5": "west" }
+  },
+  {
+    "id": "17-5",
+    "state": "unlocked",
+    "connects_to": { "18-5": "east", "16-5": "west" }
+  },
+  {
+    "id": "16-5",
+    "state": "unlocked",
+    "connects_to": { "17-5": "east", "15-5": "west" }
+  },
+  { "id": "15-5", "state": "unlocked", "connects_to": { "16-5": "east" } },
+  { "id": "14-6", "state": "unlocked", "connects_to": { "13-6": "west" } },
+  {
+    "id": "13-6",
+    "state": "unlocked",
+    "connects_to": { "14-6": "east", "12-6": "west" }
+  },
+  {
+    "id": "12-6",
+    "state": "unlocked",
+    "connects_to": { "13-6": "east", "11-6": "west" }
+  },
+  {
+    "id": "11-6",
+    "state": "unlocked",
+    "connects_to": { "12-6": "east", "11-7": "south" }
+  },
+  {
+    "id": "11-7",
+    "state": "unlocked",
+    "connects_to": { "11-6": "north", "11-8": "south" }
+  },
+  {
+    "id": "11-8",
+    "state": "unlocked",
+    "connects_to": { "11-7": "north", "11-9": "south" }
+  },
+  {
+    "id": "11-9",
+    "state": "unlocked",
+    "connects_to": { "11-8": "north", "11-10": "south" }
+  },
+  {
+    "id": "11-10",
+    "state": "unlocked",
+    "connects_to": { "11-9": "north", "11-11": "south" }
+  },
+  { "id": "11-12", "state": "unlocked", "connects_to": { "11-11": "north" } }
+]

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Procedural Dungeon Generation with Branches and Fixed Start Point
+    </title>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="dungeonCanvas" width="800" height="800"></canvas>
+    <script>
+      // Set dungeon dimensions
+      const width = 50
+      const height = 50
+      const tileSize = 16
+      const maxLineLength = 5 // Maximum length of a straight line segment
+      const canvas = document.getElementById('dungeonCanvas')
+      const ctx = canvas.getContext('2d')
+
+      // Initialize grid
+      let grid = []
+      for (let y = 0; y < height; y++) {
+        let row = []
+        for (let x = 0; x < width; x++) {
+          row.push(0) // 0 represents an empty space
+        }
+        grid.push(row)
+      }
+
+      // Function to place a single-tile room or corridor
+      function placeRoomOrCorridor(x, y, rooms) {
+        if (x >= 0 && x < width && y >= 0 && y < height && grid[y][x] === 0) {
+          grid[y][x] = 1 // 1 represents a room or corridor tile
+          rooms.push({ x: x, y: y }) // Add tile to rooms array
+        }
+      }
+
+      // Function to create corridors with optional branching
+      function createCorridor(x1, y1, x2, y2, rooms, maxRooms) {
+        let x = x1
+        let y = y1
+        let length = 0
+        let direction =
+          Math.abs(x2 - x1) > Math.abs(y2 - y1) ? 'horizontal' : 'vertical'
+        while ((x !== x2 || y !== y2) && rooms.length < maxRooms) {
+          if (length >= maxLineLength) {
+            createBranch(x, y, rooms, maxRooms, direction)
+            length = 0
+          }
+          placeRoomOrCorridor(x, y, rooms)
+          if (Math.random() < 0.1) {
+            // 10% chance to branch
+            createBranch(x, y, rooms, maxRooms, direction)
+          }
+          if (x !== x2) {
+            x += x2 > x ? 1 : -1
+          } else if (y !== y2) {
+            y += y2 > y ? 1 : -1
+          }
+          length++
+        }
+      }
+
+      // Function to create a branch
+      function createBranch(x, y, rooms, maxRooms, parentDirection) {
+        const branchLength = Math.floor(Math.random() * 5) + 3 // Length between 3 and 7
+        let direction =
+          parentDirection === 'vertical' ? 'horizontal' : 'vertical'
+        let bx = x
+        let by = y
+        for (let i = 0; i < branchLength && rooms.length < maxRooms; i++) {
+          switch (direction) {
+            case 'vertical':
+              by += Math.random() < 0.5 ? 1 : -1
+              break // Up or Down
+            case 'horizontal':
+              bx += Math.random() < 0.5 ? 1 : -1
+              break // Left or Right
+          }
+          placeRoomOrCorridor(bx, by, rooms)
+        }
+      }
+
+      // Generate rooms and corridors
+      const initialNumRooms = 200
+      let rooms = []
+      const startX = Math.floor(width / 4)
+      const startY = Math.floor(height / 4)
+      placeRoomOrCorridor(startX, startY, rooms) // Place fixed start point
+
+      while (rooms.length < initialNumRooms) {
+        let roomX = Math.floor(Math.random() * width)
+        let roomY = Math.floor(Math.random() * height)
+
+        if (grid[roomY][roomX] === 0) {
+          // Only place a room if the tile is empty
+          placeRoomOrCorridor(roomX, roomY, rooms)
+
+          // Connect rooms with corridors
+          if (rooms.length > 1) {
+            let prevRoom = rooms[rooms.length - 2]
+            let newRoom = rooms[rooms.length - 1]
+            createCorridor(
+              prevRoom.x,
+              prevRoom.y,
+              newRoom.x,
+              newRoom.y,
+              rooms,
+              initialNumRooms,
+            )
+          }
+        }
+      }
+
+      // Render the dungeon
+      function renderDungeon() {
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (grid[y][x] === 1) {
+              ctx.fillStyle = 'gray'
+            } else {
+              ctx.fillStyle = 'black'
+            }
+            ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize)
+          }
+        }
+        // Mark the start point
+        ctx.fillStyle = 'red'
+        ctx.fillRect(startX * tileSize, startY * tileSize, tileSize, tileSize)
+      }
+      renderDungeon()
+    </script>
+  </body>
+</html>
