@@ -18,33 +18,33 @@ export class MapGenerator {
   }
 
   generate = () => {
-    const startX = Math.floor(this.rows / 8)
-    const startY = Math.floor(this.cols / 8)
-    this.placeRoomOrCorridor(startX, startY) // Place fixed start point
+    const centerX = Math.floor(this.rows / 7)
+    const centerY = Math.floor(this.cols / 7)
 
-    while (this.rooms.length < this.numberOfRoom + 1) {
-      let roomX = Math.floor(Math.random() * this.rows)
-      let roomY = Math.floor(Math.random() * this.cols)
+    // Generate the main circle
+    const radius = this.generateCircleBoundary(centerX, centerY)
 
-      if (!this.grid[roomY][roomX]) {
-        // Only place a room if the tile is empty
-        this.placeRoomOrCorridor(roomX, roomY)
+    // Generate routes from points on the circular structure
+    const directions = ['up', 'down', 'left', 'right']
 
-        // Connect rooms with corridors
-        if (this.rooms.length > 1) {
-          let prevRoom = this.rooms[this.rooms.length - 2]
-          let newRoom = this.rooms[this.rooms.length - 1]
-          const prevRoomIndex = prevRoom.getRoomIndex()
-          const newRoomIndex = newRoom.getRoomIndex()
+    let remainingRoom = this.numberOfRoom - this.rooms.length
 
-          this.createCorridor(
-            prevRoomIndex[1],
-            prevRoomIndex[0],
-            newRoomIndex[1],
-            newRoomIndex[0],
-          )
-        }
-      }
+    for (let i = 0; i < remainingRoom / 2; i++) {
+      const angle = Math.random() * 2 * Math.PI
+      const x = centerX + Math.floor(radius * Math.cos(angle))
+      const y = centerY + Math.floor(radius * Math.sin(angle))
+      const direction =
+        directions[Math.floor(Math.random() * directions.length)]
+      this.createCorridor(x, y, 30, direction) // Increased length to 30 for longer routes
+    }
+
+    // Allow caves to extend inside the circular area
+    for (let i = 0; i < remainingRoom / 2; i++) {
+      const x = centerX + Math.floor((Math.random() - 0.5) * 2 * radius)
+      const y = centerY + Math.floor((Math.random() - 0.5) * 2 * radius)
+      const direction =
+        directions[Math.floor(Math.random() * directions.length)]
+      this.createCorridor(x, y, 30, direction) // Increased length to 30 for longer routes
     }
 
     this.rooms = this.rooms
@@ -88,50 +88,88 @@ export class MapGenerator {
     }
   }
 
-  private createCorridor(x1: number, y1: number, x2: number, y2: number) {
+  private createCorridor(
+    x1: number,
+    y1: number,
+    length: number,
+    initialDirection: string,
+  ) {
     let x = x1
     let y = y1
-    let length = 0
-    let direction =
-      Math.abs(x2 - x1) > Math.abs(y2 - y1) ? 'horizontal' : 'vertical'
-    while ((x !== x2 || y !== y2) && this.rooms.length < this.numberOfRoom) {
-      if (length >= this.maxLineLength) {
-        this.createBranch(x, y, direction)
-        length = 0
-      }
+    let direction = initialDirection
+    for (let i = 0; i < length && this.rooms.length < this.numberOfRoom; i++) {
       this.placeRoomOrCorridor(x, y)
-      if (Math.random() < this.rooms.length / this.numberOfRoom) {
-        // 10% chance to branch
-        this.createBranch(x, y, direction)
+      if (Math.random() < 0.5) {
+        // 50% chance to change direction
+        const directions = ['up', 'down', 'left', 'right']
+        direction = directions[Math.floor(Math.random() * directions.length)]
       }
-      if (x !== x2) {
-        x += x2 > x ? 1 : -1
-      } else if (y !== y2) {
-        y += y2 > y ? 1 : -1
+      if (Math.random() < 0.2) {
+        // 20% chance to stop and create a dead end
+        break
       }
-      length++
+      switch (direction) {
+        case 'up':
+          y--
+          break
+        case 'down':
+          y++
+          break
+        case 'left':
+          x--
+          break
+        case 'right':
+          x++
+          break
+      }
     }
   }
 
-  private createBranch(x: number, y: number, parentDirection: string) {
-    const branchLength = Math.floor(Math.random() * 3) + 3 // Length between 3 and 7
-    let direction = parentDirection === 'vertical' ? 'horizontal' : 'vertical'
-    let bx = x
-    let by = y
-    for (
-      let i = 0;
-      i < branchLength && this.rooms.length < this.numberOfRoom;
-      i++
-    ) {
-      switch (direction) {
-        case 'vertical':
-          by += Math.random() < 0.5 ? 1 : -1
-          break // Up or Down
-        case 'horizontal':
-          bx += Math.random() < 0.5 ? 1 : -1
-          break // Left or Right
+  private generateCircleBoundary = (cx: number, cy: number) => {
+    if (this.numberOfRoom <= 50) {
+      let rectWidth = Math.round(Math.sqrt(this.numberOfRoom))
+      let rectHeight = Math.round(Math.sqrt(this.numberOfRoom))
+
+      for (let i = 0; i < rectHeight; i++) {
+        for (let j = 0; j < rectWidth; j++) {
+          if (
+            i === 0 ||
+            i === rectHeight - 1 ||
+            j === 0 ||
+            j === rectWidth - 1
+          ) {
+            this.placeRoomOrCorridor(cx + i, cy + j)
+          }
+        }
       }
-      this.placeRoomOrCorridor(bx, by)
+
+      return 0
     }
+
+    const radius = Math.ceil(Math.sqrt(this.numberOfRoom / (2 * Math.PI))) + 2 // Smaller radius for a thinner circle
+    const stepAngle = 360 / this.numberOfRoom
+    let previousX = null
+    let previousY = null
+    for (let i = 0; i < this.numberOfRoom; i++) {
+      let angle = stepAngle * i
+      let rad = angle * (Math.PI / 180)
+      let x = cx + Math.floor(radius * Math.cos(rad))
+      let y = cy + Math.floor(radius * Math.sin(rad))
+
+      if (previousX !== null && previousY !== null) {
+        // Ensure only up, down, left, or right connections
+        while (x !== previousX || y !== previousY) {
+          if (x < previousX) previousX--
+          else if (x > previousX) previousX++
+          else if (y < previousY) previousY--
+          else if (y > previousY) previousY++
+          this.placeRoomOrCorridor(previousX, previousY)
+        }
+      }
+      this.placeRoomOrCorridor(x, y)
+      previousX = x
+      previousY = y
+    }
+    return radius
   }
 }

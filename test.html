@@ -1,138 +1,143 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>
-      Procedural Dungeon Generation with Branches and Fixed Start Point
-    </title>
+<head>
+    <title>Circular Dungeon Generation with Extensions</title>
     <style>
-      canvas {
-        border: 1px solid black;
-      }
+        canvas {
+            border: 1px solid black;
+        }
     </style>
-  </head>
-  <body>
-    <canvas id="dungeonCanvas" width="800" height="800"></canvas>
+</head>
+<body>
+    <canvas id="dungeonCanvas" width="1800" height="1800"></canvas>
     <script>
-      // Set dungeon dimensions
-      const width = 50
-      const height = 50
-      const tileSize = 16
-      const maxLineLength = 5 // Maximum length of a straight line segment
-      const canvas = document.getElementById('dungeonCanvas')
-      const ctx = canvas.getContext('2d')
+        // Set dungeon dimensions
+        const width = 150;
+        const height = 150;
+        const tileSize = 16;
+        const canvas = document.getElementById('dungeonCanvas');
+        const ctx = canvas.getContext('2d');
 
-      // Initialize grid
-      let grid = []
-      for (let y = 0; y < height; y++) {
-        let row = []
-        for (let x = 0; x < width; x++) {
-          row.push(0) // 0 represents an empty space
-        }
-        grid.push(row)
-      }
-
-      // Function to place a single-tile room or corridor
-      function placeRoomOrCorridor(x, y, rooms) {
-        if (x >= 0 && x < width && y >= 0 && y < height && grid[y][x] === 0) {
-          grid[y][x] = 1 // 1 represents a room or corridor tile
-          rooms.push({ x: x, y: y }) // Add tile to rooms array
-        }
-      }
-
-      // Function to create corridors with optional branching
-      function createCorridor(x1, y1, x2, y2, rooms, maxRooms) {
-        let x = x1
-        let y = y1
-        let length = 0
-        let direction =
-          Math.abs(x2 - x1) > Math.abs(y2 - y1) ? 'horizontal' : 'vertical'
-        while ((x !== x2 || y !== y2) && rooms.length < maxRooms) {
-          if (length >= maxLineLength) {
-            createBranch(x, y, rooms, maxRooms, direction)
-            length = 0
-          }
-          placeRoomOrCorridor(x, y, rooms)
-          if (Math.random() < 0.1) {
-            // 10% chance to branch
-            createBranch(x, y, rooms, maxRooms, direction)
-          }
-          if (x !== x2) {
-            x += x2 > x ? 1 : -1
-          } else if (y !== y2) {
-            y += y2 > y ? 1 : -1
-          }
-          length++
-        }
-      }
-
-      // Function to create a branch
-      function createBranch(x, y, rooms, maxRooms, parentDirection) {
-        const branchLength = Math.floor(Math.random() * 5) + 3 // Length between 3 and 7
-        let direction =
-          parentDirection === 'vertical' ? 'horizontal' : 'vertical'
-        let bx = x
-        let by = y
-        for (let i = 0; i < branchLength && rooms.length < maxRooms; i++) {
-          switch (direction) {
-            case 'vertical':
-              by += Math.random() < 0.5 ? 1 : -1
-              break // Up or Down
-            case 'horizontal':
-              bx += Math.random() < 0.5 ? 1 : -1
-              break // Left or Right
-          }
-          placeRoomOrCorridor(bx, by, rooms)
-        }
-      }
-
-      // Generate rooms and corridors
-      const initialNumRooms = 200
-      let rooms = []
-      const startX = Math.floor(width / 4)
-      const startY = Math.floor(height / 4)
-      placeRoomOrCorridor(startX, startY, rooms) // Place fixed start point
-
-      while (rooms.length < initialNumRooms) {
-        let roomX = Math.floor(Math.random() * width)
-        let roomY = Math.floor(Math.random() * height)
-
-        if (grid[roomY][roomX] === 0) {
-          // Only place a room if the tile is empty
-          placeRoomOrCorridor(roomX, roomY, rooms)
-
-          // Connect rooms with corridors
-          if (rooms.length > 1) {
-            let prevRoom = rooms[rooms.length - 2]
-            let newRoom = rooms[rooms.length - 1]
-            createCorridor(
-              prevRoom.x,
-              prevRoom.y,
-              newRoom.x,
-              newRoom.y,
-              rooms,
-              initialNumRooms,
-            )
-          }
-        }
-      }
-
-      // Render the dungeon
-      function renderDungeon() {
+        // Initialize grid
+        let grid = [];
         for (let y = 0; y < height; y++) {
-          for (let x = 0; x < width; x++) {
-            if (grid[y][x] === 1) {
-              ctx.fillStyle = 'gray'
-            } else {
-              ctx.fillStyle = 'black'
+            let row = [];
+            for (let x = 0; x < width; x++) {
+                row.push(0); // 0 represents an empty space
             }
-            ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize)
-          }
+            grid.push(row);
         }
-        // Mark the start point
-        ctx.fillStyle = 'red'
-        ctx.fillRect(startX * tileSize, startY * tileSize, tileSize, tileSize)
-      }
-      renderDungeon()
+
+        // Function to place a single-tile room or corridor
+        function placeRoomOrCorridor(x, y, rooms) {
+            if (x >= 0 && x < width && y >= 0 && y < height && grid[y][x] === 0) {
+                grid[y][x] = 1; // 1 represents a room or corridor tile
+                rooms.push({ x: x, y: y }); // Add tile to rooms array
+            }
+        }
+
+        // Function to create corridors with more turns and optional dead ends
+        function createCorridor(x1, y1, length, initialDirection, rooms, maxRooms) {
+            let x = x1;
+            let y = y1;
+            let direction = initialDirection;
+            for (let i = 0; i < length && rooms.length < maxRooms; i++) {
+                placeRoomOrCorridor(x, y, rooms);
+                if (Math.random() < 0.5) { // 50% chance to change direction
+                    const directions = ['up', 'down', 'left', 'right'];
+                    direction = directions[Math.floor(Math.random() * directions.length)];
+                }
+                if (Math.random() < 0.2) { // 20% chance to stop and create a dead end
+                    break;
+                }
+                switch (direction) {
+                    case 'up': y--; break;
+                    case 'down': y++; break;
+                    case 'left': x--; break;
+                    case 'right': x++; break;
+                }
+            }
+        }
+
+        // Create the circular structure
+        const centerX = Math.floor(width / 2);
+        const centerY = Math.floor(height / 2);
+        const initialNumRooms = 500; // You can change this value to generate different number of rooms
+        let rooms = [];
+
+        // Function to generate circular boundary with a minimum of 8 rooms
+        function generateCircleBoundary(cx, cy, numRooms) {
+            const radius = Math.ceil(Math.sqrt(numRooms / (2 * Math.PI))) + 20; // Smaller radius for a thinner circle
+            const stepAngle = 360 / numRooms;
+            let previousX = null;
+            let previousY = null;
+            for (let i = 0; i < numRooms; i++) {
+                let angle = stepAngle * i;
+                let rad = angle * (Math.PI / 180);
+                let x = cx + Math.floor(radius * Math.cos(rad));
+                let y = cy + Math.floor(radius * Math.sin(rad));
+                
+                if (previousX !== null && previousY !== null) {
+                    // Ensure only up, down, left, or right connections
+                    while (x !== previousX || y !== previousY) {
+                        if (x < previousX) previousX--;
+                        else if (x > previousX) previousX++;
+                        else if (y < previousY) previousY--;
+                        else if (y > previousY) previousY++;
+                        placeRoomOrCorridor(previousX, previousY, rooms);
+                    }
+                }
+                placeRoomOrCorridor(x, y, rooms);
+                previousX = x;
+                previousY = y;
+            }
+            return radius
+        }
+
+        // Generate the main circle
+        const radius =  generateCircleBoundary(centerX, centerY, Math.max(8, initialNumRooms));
+
+        // Generate routes from points on the circular structure
+        const directions = ['up', 'down', 'left', 'right'];
+
+        for (let i = 0; i < initialNumRooms; i++) {
+            const angle = Math.random() * 2 * Math.PI;
+            const x = centerX + Math.floor(radius * Math.cos(angle));
+            const y = centerY + Math.floor(radius * Math.sin(angle));
+            const direction = directions[Math.floor(Math.random() * directions.length)];
+            createCorridor(x, y, 30, direction, rooms, initialNumRooms); // Increased length to 30 for longer routes
+        }
+
+        // Allow caves to extend inside the circular area
+        for (let i = 0; i < initialNumRooms; i++) {
+            const x = centerX + Math.floor((Math.random() - 0.5) * 2 * radius);
+            const y = centerY + Math.floor((Math.random() - 0.5) * 2 * radius);
+            const direction = directions[Math.floor(Math.random() * directions.length)];
+            createCorridor(x, y, 30, direction, rooms, initialNumRooms); // Increased length to 30 for longer routes
+        }
+
+        // Render the dungeon
+        function renderDungeon() {
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (grid[y][x] === 1) {
+                        ctx.fillStyle = 'gray';
+                    } else {
+                        ctx.fillStyle = 'black';
+                    }
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+            // Mark the center point
+            ctx.fillStyle = 'red';
+            ctx.fillRect(centerX * tileSize, centerY * tileSize, tileSize, tileSize);
+        }
+        console.log(rooms);
+        renderDungeon();
     </script>
-  </body>
+</body>
 </html>
+1 1 1 1
+1 0 0 1
+1 0 0 1
+1 1 1 1
