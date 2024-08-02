@@ -18,8 +18,8 @@ export class MapGenerator {
   }
 
   generate = () => {
-    const centerX = Math.floor(this.rows / 7)
-    const centerY = Math.floor(this.cols / 7)
+    const centerX = Math.floor(this.rows / 3)
+    const centerY = Math.floor(this.cols / 3)
 
     // Generate the main circle
     const radius = this.generateCircleBoundary(centerX, centerY)
@@ -35,7 +35,7 @@ export class MapGenerator {
       const y = centerY + Math.floor(radius * Math.sin(angle))
       const direction =
         directions[Math.floor(Math.random() * directions.length)]
-      this.createCorridor(x, y, 30, direction) // Increased length to 30 for longer routes
+      this.createCorridor(x, y, Math.round(Math.random() * 50 + 5), direction) // Increased length to 30 for longer routes
     }
 
     // Allow caves to extend inside the circular area
@@ -44,7 +44,7 @@ export class MapGenerator {
       const y = centerY + Math.floor((Math.random() - 0.5) * 2 * radius)
       const direction =
         directions[Math.floor(Math.random() * directions.length)]
-      this.createCorridor(x, y, 30, direction) // Increased length to 30 for longer routes
+      this.createCorridor(x, y, Math.round(Math.random() * 50 + 5), direction) // Increased length to 30 for longer routes
     }
 
     this.rooms = this.rooms
@@ -146,7 +146,9 @@ export class MapGenerator {
       return 0
     }
 
-    const radius = Math.ceil(Math.sqrt(this.numberOfRoom / (2 * Math.PI))) + 2 // Smaller radius for a thinner circle
+    const radius = Math.ceil(
+      Math.sqrt((this.numberOfRoom * 1.5) / (2 * Math.PI)),
+    ) // Smaller radius for a thinner circle
     const stepAngle = 360 / this.numberOfRoom
     let previousX = null
     let previousY = null
